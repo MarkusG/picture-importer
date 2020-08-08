@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, sys, re, getopt
+import os, shutil, sys, re, getopt
 import dateutil.parser
 from subprocess import check_output
 
@@ -120,7 +120,7 @@ for ext in img_ext:
             os.mkdir(dir)
         except FileExistsError:
             pass
-        os.rename(path, os.path.join(dir, file))
+        shutil.move(path, os.path.join(dir, file))
         print("[ \033[92mOK\033[0m ] {} <- {}".format(os.path.join(dir, file), path))
 
 for ext in vid_ext:
@@ -136,5 +136,5 @@ for ext in vid_ext:
             os.mkdir(dir)
         except FileExistsError:
             pass
-        os.rename(path, os.path.join(dir, file))
+        shutil.move(path, os.path.join(dir, file))
         print("[ \033[92mOK\033[0m ] {} <- {}".format(os.path.join(dir, file), path))
