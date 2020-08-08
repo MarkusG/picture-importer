@@ -96,12 +96,20 @@ for x in [item for sub in vid_ext.values() for item in sub]:
     else:
         vid_count += 1
 
-print("{} images will be imported".format(img_count))
-print("{} videos will be imported\n".format(vid_count))
-print("{} files have no timestamp and will not be imported\n".format(no_ts))
-print("non-image files found:")
-for x in oth_ext:
-    print("{}: {}".format(x, len(oth_ext[x])))
+if img_count > 0:
+    print("{} images will be imported".format(img_count))
+if vid_count > 0:
+    print("{} videos will be imported\n".format(vid_count))
+if no_ts > 0:
+    print("{} files have no timestamp and will not be imported\n".format(no_ts))
+if len(oth_ext) > 0:
+    print("non-image files found:")
+    for x in oth_ext:
+        print("{}: {}".format(x, len(oth_ext[x])))
+
+if img_count == 0 and vid_count == 0:
+    print("nothing to do")
+    sys.exit(0)
 
 choice = input("\ncontinue? (y/n) ")
 if choice != 'y':
