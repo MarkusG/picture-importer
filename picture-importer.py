@@ -24,7 +24,9 @@ def get_image_timestamp(path):
         dt = img.datetime_original
     except:
         return None
-    return dateutil.parser.parse(dt)
+    split = dt.split()
+    split[0] = split[0].replace(':', '-')
+    return dateutil.parser.parse(" ".join(split))
 
 # parse command line arguments
 
