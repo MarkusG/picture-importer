@@ -106,3 +106,35 @@ for x in oth_ext:
 choice = input("\ncontinue? (y/n) ")
 if choice != 'y':
     sys.exit(1)
+
+for ext in img_ext:
+    for path in img_ext[ext]:
+        ts = get_image_timestamp(path)
+        if ts is None:
+            print("[\033[91mFAIL\033[0m] {} has no timestamp".format(path))
+            continue
+        ts_str = ts.strftime("%Y%m%d_%H%M%S")
+        file = "{}.{}".format(ts_str, ext)
+        dir = os.path.join(dest, ts.strftime("%Y-%m-%d"))
+        try:
+            os.mkdir(dir)
+        except FileExistsError:
+            pass
+        os.rename(path, os.path.join(dir, file))
+        print("[ \033[92mOK\033[0m ] {} <- {}".format(os.path.join(dir, file), path))
+
+for ext in vid_ext:
+    for path in vid_ext[ext]:
+        ts = get_video_timestamp(path)
+        if ts is None:
+            print("[\033[91mFAIL\033[0m] {} has no timestamp".format(path))
+            continue
+        ts_str = ts.strftime("%Y%m%d_%H%M%S")
+        file = "{}.{}".format(ts_str, ext)
+        dir = os.path.join(dest, ts.strftime("%Y-%m-%d"))
+        try:
+            os.mkdir(dir)
+        except FileExistsError:
+            pass
+        os.rename(path, os.path.join(dir, file))
+        print("[ \033[92mOK\033[0m ] {} <- {}".format(os.path.join(dir, file), path))
