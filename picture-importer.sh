@@ -57,27 +57,27 @@ do
     timestamp_raw=""
     for sibling in "$src"/"$filename"*; do
         timestamp_raw=$(exiv2 -g Exif.Image.DateTime pr "$sibling" | tr -s ' ' | cut -d' ' -f 4-5)
-        [[ ! -z "$timestamp_raw" ]] && break
+        [[ -n "$timestamp_raw" ]] && break
     done
 
     if [[ -z "$timestamp_raw" ]]; then
-        no_timestamp+="$path"
+        no_timestamp+=("$path")
         printf '\033[93mwarning:\033[0m no timestamp for file %s\n' "$path"
         continue
     fi
 
     # parse timestamp
-    date_raw=$(echo $timestamp_raw | cut -d' ' -f 1)
+    date_raw=$(echo "$timestamp_raw" | cut -d' ' -f 1)
 
-    year=$(echo $date_raw | cut -d':' -f 1)
-    month=$(echo $date_raw | cut -d':' -f 2)
-    day=$(echo $date_raw | cut -d':' -f 3)
+    year=$(echo "$date_raw" | cut -d':' -f 1)
+    month=$(echo "$date_raw" | cut -d':' -f 2)
+    day=$(echo "$date_raw" | cut -d':' -f 3)
 
-    time=$(echo $timestamp_raw | cut -d' ' -f 2)
+    time=$(echo "$timestamp_raw" | cut -d' ' -f 2)
 
-    hour=$(echo $time | cut -d':' -f 1)
-    min=$(echo $time | cut -d':' -f 2)
-    sec=$(echo $time | cut -d':' -f 3)
+    hour=$(echo "$time" | cut -d':' -f 1)
+    min=$(echo "$time" | cut -d':' -f 2)
+    sec=$(echo "$time" | cut -d':' -f 3)
 
     date="${year}-${month}-${day}"
     timestamp=$"${year}${month}${day}_${hour}${min}${sec}"
@@ -113,6 +113,6 @@ fi
 if (( ${#no_timestamp[@]} != 0 )); then
     printf 'files with no timestamp:\n'
     for path in "${no_timestamp[@]}"; do
-        printf '%s\n' $(basename "$path")
+        printf '%s\n' "$(basename "$path")"
     done
 fi
