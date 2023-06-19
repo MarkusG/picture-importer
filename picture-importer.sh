@@ -94,7 +94,7 @@ do
     fi
 
     # convert extension to lower case
-    extension=$(echo "$path" | cut -d'.' -f 3- | tr '[:upper:]' '[:lower:]')
+    extension=$(basename "$path" | cut -d'.' -f 2- | tr '[:upper:]' '[:lower:]')
 
     # create new file name
     new_filename="${timestamp}.${extension}"
