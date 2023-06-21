@@ -30,6 +30,10 @@ do
     esac
 done
 
+# resolve paths
+src=$(realpath "$src")
+dest=$(realpath "$dest")
+
 # validate command line arguments
 [[ -z "$src" ]] && printf '\033[91merror:\033[0m source directory not provided\n' && exit
 [[ -z "$dest" ]] && printf '\033[91merror:\033[0m destination directory not provided\n' && exit
