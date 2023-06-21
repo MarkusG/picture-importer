@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# TODO support videos
 # TODO support recursing into directories
 # TODO support pictures taken in the same second
 
@@ -56,28 +55,43 @@ do
     # look through all files with the same name to find one with exif data
     timestamp_raw=""
     for sibling in "$src"/"$filename"*; do
-        timestamp_raw=$(exiv2 -g Exif.Image.DateTime pr "$sibling" | tr -s ' ' | cut -d' ' -f 4-5)
+        timestamp_raw=$(exiv2 -g Exif.Image.DateTime pr "$sibling" 2> /dev/null | tr -s ' ' | cut -d' ' -f 4-5)
         [[ -n "$timestamp_raw" ]] && break
     done
 
-    if [[ -z "$timestamp_raw" ]]; then
-        no_timestamp+=("$path")
-        printf '\033[93mwarning:\033[0m no timestamp for file %s\n' "$path"
-        continue
+    if [[ -n "$timestamp_raw" ]]; then
+        # parse timestamp
+        date_raw=$(echo "$timestamp_raw" | cut -d' ' -f 1)
+
+        year=$(echo "$date_raw" | cut -d':' -f 1)
+        month=$(echo "$date_raw" | cut -d':' -f 2)
+        day=$(echo "$date_raw" | cut -d':' -f 3)
+
+        time=$(echo "$timestamp_raw" | cut -d' ' -f 2)
+
+        hour=$(echo "$time" | cut -d':' -f 1)
+        min=$(echo "$time" | cut -d':' -f 2)
+        sec=$(echo "$time" | cut -d':' -f 3)
+    else
+        # try to extract video timestamp
+        timestamp_raw=$(ffprobe -v quiet "$path" -show_entries format_tags=creation_time | sed 2!d | cut -d'=' -f 2)
+        date_raw=$(echo "$timestamp_raw" | cut -d'T' -f 1)
+
+        year=$(echo "$date_raw" | cut -d'-' -f 1)
+        month=$(echo "$date_raw" | cut -d'-' -f 2)
+        day=$(echo "$date_raw" | cut -d'-' -f 3)
+
+        time_raw=$(echo "$timestamp_raw" | cut -d'T' -f 2 | cut -d'.' -f 1)
+
+        hour=$(echo "$time_raw" | cut -d':' -f 1)
+        min=$(echo "$time_raw" | cut -d':' -f 2)
+        sec=$(echo "$time_raw" | cut -d':' -f 3)
     fi
 
-    # parse timestamp
-    date_raw=$(echo "$timestamp_raw" | cut -d' ' -f 1)
-
-    year=$(echo "$date_raw" | cut -d':' -f 1)
-    month=$(echo "$date_raw" | cut -d':' -f 2)
-    day=$(echo "$date_raw" | cut -d':' -f 3)
-
-    time=$(echo "$timestamp_raw" | cut -d' ' -f 2)
-
-    hour=$(echo "$time" | cut -d':' -f 1)
-    min=$(echo "$time" | cut -d':' -f 2)
-    sec=$(echo "$time" | cut -d':' -f 3)
+    if [[ -z "$timestamp_raw" ]]; then
+        no_timestamp+=("$path")
+        continue
+    fi
 
     date="${year}-${month}-${day}"
     timestamp=$"${year}${month}${day}_${hour}${min}${sec}"
