@@ -88,13 +88,13 @@ do
         sec=$(echo "$time_raw" | cut -d':' -f 3)
     fi
 
-    if [[ -z "$timestamp_raw" ]]; then
+    date="${year}-${month}-${day}"
+    timestamp="${year}${month}${day}_${hour}${min}${sec}"
+
+    if [[ ! "$timestamp" =~ ^\d{8}_\d{6}$ ]]; then
         no_timestamp+=("$path")
         continue
     fi
-
-    date="${year}-${month}-${day}"
-    timestamp=$"${year}${month}${day}_${hour}${min}${sec}"
 
     # if dry run, display the number of files per date as we count them
     if [[ $dry_run -gt 0 ]]; then
