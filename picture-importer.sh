@@ -95,7 +95,7 @@ do
     date="${year}-${month}-${day}"
     timestamp="${year}${month}${day}_${hour}${min}${sec}"
 
-    if [[ ! "$timestamp" =~ ^\d{8}_\d{6}$ ]]; then
+    if !(echo "$timestamp" | grep -Pq '^\d{8}_\d{6}$'); then
         no_timestamp+=("$path")
         continue
     fi
