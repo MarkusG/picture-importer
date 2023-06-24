@@ -119,7 +119,7 @@ do
 
     # make directory and copy
     mkdir -p "${dest}/$date"
-    cp -v --no-preserve=mode,ownership "$path" "${dest}/${date}/${new_filename}"
+    cp -v --backup=t --no-preserve=mode,ownership "$path" "${dest}/${date}/${new_filename}"
 done
 
 # if dry run, print a newline, because we don't after counting the images for the final date
