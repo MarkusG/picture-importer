@@ -43,8 +43,8 @@ dest=$(realpath "$dest")
 # if dry run, declare an associative array to hold our dates
 [[ $dry_run -gt 0 ]] && declare -A dates
 
-# if dry run, declare an array to hold files without timestamps
-[[ $dry_run -gt 0 ]] && no_timestamp=()
+# declare an array to hold files without timestamps
+no_timestamp=()
 
 for path in "$src"/*;
 do
