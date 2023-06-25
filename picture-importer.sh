@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # TODO support recursing into directories
-# TODO support pictures taken in the same second
 
 src=""
 dest=""
@@ -95,7 +94,7 @@ do
     date="${year}-${month}-${day}"
     timestamp="${year}${month}${day}_${hour}${min}${sec}"
 
-    if !(echo "$timestamp" | grep -Pq '^\d{8}_\d{6}$'); then
+    if ! (echo "$timestamp" | grep -Pq '^\d{8}_\d{6}$'); then
         no_timestamp+=("$path")
         continue
     fi
