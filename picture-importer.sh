@@ -5,6 +5,7 @@
 src=""
 dest=""
 dry_run=0
+tz=$(date +%:z)
 
 # parse command line arguments
 while [[ $# -gt 0 ]]
@@ -24,6 +25,11 @@ do
             dry_run=1
             shift
             ;;
+        --video-tz-offset)
+            tz="$2"
+            shift
+            shift
+            ;;
         *)
             printf '\033[91merror:\033[0m %s is not a valid argument\n' "$1" && exit
     esac
@@ -39,6 +45,10 @@ dest=$(realpath "$dest")
 
 [[ ! -d "$src" ]] && printf '\033[91merror:\033[0m %s is not a directory\n' "$src" && exit
 [[ ! -d "$dest" ]] && printf '\033[91merror:\033[0m %s is not a directory\n' "$dest" && exit
+
+if [[ -n "$tz" ]]; then
+    ! (echo "$tz" | grep -Pq '^[+-]\d{2}:\d{2}$') && printf '\033[91merror:\033[0m %s is not a valid time zone offset\n' "$tz" && exit
+fi
 
 # if dry run, declare an associative array to hold our dates
 [[ $dry_run -gt 0 ]] && declare -A dates
@@ -75,25 +85,31 @@ do
         hour=$(echo "$time" | cut -d':' -f 1)
         min=$(echo "$time" | cut -d':' -f 2)
         sec=$(echo "$time" | cut -d':' -f 3)
+
+        date="${year}-${month}-${day}"
+        timestamp="${year}${month}${day}_${hour}${min}${sec}"
     else
         # try to extract video timestamp
         timestamp_raw=$(ffprobe -v quiet "$path" -show_entries format_tags=creation_time | sed 2!d | cut -d'=' -f 2)
-        date_raw=$(echo "$timestamp_raw" | cut -d'T' -f 1)
+        ts_descriptor="$timestamp_raw"
 
-        year=$(echo "$date_raw" | cut -d'-' -f 1)
-        month=$(echo "$date_raw" | cut -d'-' -f 2)
-        day=$(echo "$date_raw" | cut -d'-' -f 3)
+        # here we assume that the video timestamps will be in UTC
+        # if necessary, we can add logic to detect if they have an offset to begin with
 
-        time_raw=$(echo "$timestamp_raw" | cut -d'T' -f 2 | cut -d'.' -f 1)
+        # parse timezone offset
+        if [[ -n "$tz" ]]; then
+            pm=$(echo "$tz" | cut -c 1)
+            hr=$(echo "$tz" | cut -c 2-3)
+            mn=$(echo "$tz" | cut -c 5-6)
+            ts_descriptor="$timestamp_raw ${pm}${hr} hour ${pm}${mn} min"
+        fi
 
-        hour=$(echo "$time_raw" | cut -d':' -f 1)
-        min=$(echo "$time_raw" | cut -d':' -f 2)
-        sec=$(echo "$time_raw" | cut -d':' -f 3)
+        # get formatted timestamps
+        date=$(date --date="$ts_descriptor" -u +%Y-%m-%d)
+        timestamp=$(date --date="$ts_descriptor" -u +%Y%m%d_%H%M%S)
     fi
 
-    date="${year}-${month}-${day}"
-    timestamp="${year}${month}${day}_${hour}${min}${sec}"
-
+    # ensure timestamp is in the format we expect
     if ! (echo "$timestamp" | grep -Pq '^\d{8}_\d{6}$'); then
         no_timestamp+=("$path")
         continue
