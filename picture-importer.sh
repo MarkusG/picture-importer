@@ -130,7 +130,7 @@ do
     extension=$(basename "$path" | cut -d'.' -f 2- | tr '[:upper:]' '[:lower:]')
 
     # create new file name
-    new_filename="${timestamp}.${extension}"
+    new_filename="${filename}.${extension}"
 
     # make directory and copy
     mkdir -p "${dest}/$date"
